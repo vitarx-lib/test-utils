@@ -19,8 +19,8 @@ export class TestingApp {
    * 等待下一个tick
    */
   nextTick: typeof vNextTick = vNextTick
-  // 声明一个变量用于存储应用程序实例，初始值为null
-  private app: WidgetVNode | null = null
+  // 声明一个变量用于存储节点实例，初始值为null
+  private node: WidgetVNode | null = null
 
   /**
    * 挂载组件到指定容器
@@ -37,10 +37,10 @@ export class TestingApp {
     domStubs?: Record<string, string>
   ): WidgetVNode {
     // 如果已经挂载，抛出错误提示先卸载
-    if (this.app?.state !== 'notMounted') throw new Error('App 已挂载，请先调用unmount卸载！')
-    this.app = createElement(component, props) as WidgetVNode
+    if (this.node?.state !== 'notMounted') throw new Error('App 已挂载，请先调用unmount卸载！')
+    this.node = createElement(component, props) as WidgetVNode
     // 挂载应用到容器
-    this.app.mount(container)
+    this.node.mount(container)
     // 应用 DOM 级别桩替换
     if (domStubs) {
       for (const [selector, html] of Object.entries(domStubs)) {
@@ -61,18 +61,18 @@ export class TestingApp {
         }
       }
     }
-    return this.app
+    return this.node
   }
 
   /**
    * 卸载已挂载的应用
    */
   unmount() {
-    if (this.app && this.app.state !== 'unloaded') {
+    if (this.node && this.node.state !== 'unloaded') {
       // 重置应用实例和挂载状态
-      this.app.unmount()
+      this.node.unmount()
     }
-    this.app = null
+    this.node = null
   }
 }
 
