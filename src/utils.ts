@@ -12,6 +12,8 @@ import { nextTick as vNextTick, type RuntimeElement } from 'vitarx'
  * - 对齐 Vitarx 的 nextTick 语义。
  */
 export const nextTick = vNextTick
+// @ts-ignore
+const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout
 
 /**
  * flushPromises
@@ -23,8 +25,9 @@ export const nextTick = vNextTick
  * @returns Promise<void> 当所有已排队的 Promise 完成并完成一次 nextTick 后 resolve。
  */
 export async function flushPromises(): Promise<void> {
-  await Promise.resolve()
-  await vNextTick()
+  return new Promise((resolve) => {
+    scheduler(resolve, 0)
+  })
 }
 
 /**
