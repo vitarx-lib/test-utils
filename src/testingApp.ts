@@ -3,11 +3,11 @@
  */
 
 import {
-  createApp,
   createElement,
   nextTick as vNextTick,
   type VNodeProps,
-  type WidgetType
+  type WidgetType,
+  type WidgetVNode
 } from 'vitarx'
 
 export interface TestingApp {
@@ -28,9 +28,7 @@ export interface TestingApp {
  */
 export function createTestingApp(): TestingApp {
   // 声明一个变量用于存储应用程序实例，初始值为null
-  let app: ReturnType<typeof createApp> | null = null
-  // 标记应用程序是否已挂载
-  let mounted = false
+  let app: WidgetVNode | null = null
 
   return {
     /**
@@ -47,10 +45,8 @@ export function createTestingApp(): TestingApp {
       domStubs?: Record<string, string>
     ) {
       // 如果已经挂载，抛出错误提示先卸载
-      if (mounted) throw new Error('App 已挂载，请先调用 unmount')
-      const node = createElement(component, props)
-      // 创建应用程序实例
-      app = createApp(node)
+      if (app?.state !== 'notMounted') throw new Error('App 已挂载，不能进行重复挂载！')
+      app = createElement(component, props) as WidgetVNode
       // 挂载应用到容器
       app.mount(container)
       // 应用 DOM 级别桩替换
@@ -73,19 +69,16 @@ export function createTestingApp(): TestingApp {
           }
         }
       }
-      // 标记为已挂载
-      mounted = true
     },
     /**
      * 卸载已挂载的应用
      */
     unmount() {
-      if (app && mounted) {
+      if (app && app.state !== 'unloaded') {
         // 重置应用实例和挂载状态
         app.unmount()
       }
       app = null
-      mounted = false
     },
     /**
      * 等待下一个tick
