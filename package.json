@@ -26,7 +26,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "rimraf dist tsc -p tsconfig.build.json",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
     "publish": "npm publish --access=public --registry https://registry.npmjs.org/",
     "test": "vitest run",
