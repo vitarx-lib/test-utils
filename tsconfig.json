@@ -12,7 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "types": [
-      "vitarx"
+      "vitarx",
+      "vitest/globals"
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "vitarx"
