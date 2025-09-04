@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['tests/**/*.test.ts']
+    include: ['tests/**/*.test.tsx']
   },
   optimizeDeps: {
     exclude: ['vitarx']
