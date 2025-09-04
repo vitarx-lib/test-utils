@@ -41,15 +41,15 @@ function createContainer(attachTo?: HTMLElement | null): HTMLElement {
  * @returns Wrapper 包装器实例
  */
 function createWrapper<C extends WidgetType>(
-  component: C,  // 组件函数或组件元素
-  options: MountOptions<VNodeProps<C>>  // 挂载配置选项
+  component: C, // 组件函数或组件元素
+  options: MountOptions<VNodeProps<C>> // 挂载配置选项
 ): Wrapper<VNodeInstance<C>> {
   // 创建测试应用实例
   const app = createTestingApp()
   // 创建容器元素
   const container = createContainer(options.attachTo)
   // 当前组件属性
-  const currentProps: VNodeProps<C> = options.props ?? {} as VNodeProps<C>
+  const currentProps: VNodeProps<C> = options.props ?? ({} as VNodeProps<C>)
   // 挂载组件
   const node = app.mount(component, currentProps, container, options.domStubs) as VNodeInstance<C>
   // 返回包装器实例
@@ -108,7 +108,7 @@ export class Wrapper<T extends VNode> {
    * @param node - 要挂载的组件节点，类型为泛型T
    */
   constructor(node: T) {
-    this.#node = node  // 挂载组件
+    this.#node = node // 挂载组件
   }
 
   /**
@@ -118,7 +118,7 @@ export class Wrapper<T extends VNode> {
    * @returns {Object} - 返回一个包含节点属性的冻结对象
    */
   get props(): Readonly<T['props']> {
-    return Object.freeze(this.#node.props)  // 使用Object.freeze方法冻结节点属性对象，确保其不可变性
+    return Object.freeze(this.#node.props) // 使用Object.freeze方法冻结节点属性对象，确保其不可变性
   }
 
   /**
@@ -258,7 +258,10 @@ export class Wrapper<T extends VNode> {
     const element = (this.node.element as HTMLElement).querySelector(selector)
     // 如果没有匹配的元素，则返回null
     if (!element) {
-      if (WidgetVNode.is(this.node) && this.element.parentNode?.querySelector(selector) === this.node.element) {
+      if (
+        WidgetVNode.is(this.node) &&
+        this.element.parentNode?.querySelector(selector) === this.node.element
+      ) {
         return new Wrapper(this.#findElementNode(this.node.child)) as Wrapper<ElementVNode>
       }
       return null
@@ -335,7 +338,7 @@ export class Wrapper<T extends VNode> {
    */
   text(): string {
     // 检查元素是否支持textContent属性
-    if ('textContent' in this.element) return (this.element as HTMLElement).textContent
+    if ('textContent' in this.element) return (this.element as HTMLElement).textContent || ''
     return (this.element as HTMLElement)?.nodeValue ?? ''
   }
 
@@ -406,5 +409,4 @@ export class Wrapper<T extends VNode> {
     // 返回找到的元素节点
     return node
   }
-
 }
