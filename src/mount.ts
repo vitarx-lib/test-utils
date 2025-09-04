@@ -236,38 +236,13 @@ export class Wrapper<T extends VNode> {
    * @returns {Array<ElementVNode>} 返回匹配选择器的Wrapper数组，如果没有匹配项则返回空数组
    */
   findAll(selector: string): Wrapper<ElementVNode>[] {
-    // 检查当前节点是否具有querySelectorAll方法
-    if (!('querySelectorAll' in this.#node.element)) return []
-
-    // 使用选择器查找所有匹配的DOM元素
-    const elements = Array.from((this.#node.element as HTMLElement).querySelectorAll(selector))
-    // 如果没有匹配的元素，直接返回空数组
-    if (elements.length === 0) return []
-
-    // 用于存储匹配的包装器对象数组
-    const wrappers: Wrapper<ElementVNode>[] = []
-    // 获取当前节点的元素节点
-    const node = this.#findElementNode(this.#node)
-
-    // 定义访问子节点的函数
-    const visit = (child: VNode) => {
-      // 获取子节点的元素节点
-      const elNode = this.#findElementNode(child)
-      // 如果子节点的元素存在于匹配的元素集合中，则创建包装器并添加到结果数组
-      if (elNode.element && elements.includes(elNode.element as HTMLElement)) {
-        wrappers.push(new Wrapper(elNode as ElementVNode))
-      }
-      // 如果是容器节点，递归访问其子节点
-      if (ContainerVNode.is(elNode)) {
-        elNode.children.forEach(visit)
+    const wrappers = this.#querySelectorAll(selector)
+    if (wrappers.length === 0 && WidgetVNode.is(this.node)) {
+      const els = Array.from(this.element.parentNode?.querySelectorAll(selector) || [])
+      if (els.includes(this.element as HTMLElement)) {
+        return [new Wrapper(this.#findElementNode(this.node.child) as ElementVNode)]
       }
     }
-
-    // 如果是容器节点，开始遍历其子节点
-    if (ContainerVNode.is(node)) {
-      node.children.forEach(visit)
-    }
-
     return wrappers
   }
 
@@ -280,9 +255,14 @@ export class Wrapper<T extends VNode> {
    */
   find(selector: string): Wrapper<ElementVNode> | null {
     // 使用选择器查找匹配的DOM元素
-    const element = (this.#node.element as HTMLElement).querySelector(selector)
+    const element = (this.node.element as HTMLElement).querySelector(selector)
     // 如果没有匹配的元素，则返回null
-    if (!element) return null
+    if (!element) {
+      if (WidgetVNode.is(this.node) && this.element.parentNode?.querySelector(selector) === this.node.element) {
+        return new Wrapper(this.#findElementNode(this.node.child)) as Wrapper<ElementVNode>
+      }
+      return null
+    }
 
     // 定义访问子节点的函数
     const visit = (child: VNode): ElementVNode | null => {
@@ -367,6 +347,47 @@ export class Wrapper<T extends VNode> {
   unmount(): void {
     // 调用内部节点实例的卸载方法
     this.#node.unmount()
+  }
+
+  /**
+   * 根据选择器查找所有匹配的元素节点并返回它们的包装器对象数组
+   * @param selector - CSS选择器字符串，用于匹配DOM元素
+   * @returns {Wrapper<ElementVNode>[]} 返回匹配元素的包装器对象数组，如果没有匹配项则返回空数组
+   */
+  #querySelectorAll(selector: string): Wrapper<ElementVNode>[] {
+    // 检查当前节点是否具有querySelectorAll方法
+    if (!('querySelectorAll' in this.#node.element)) return []
+
+    // 使用选择器查找所有匹配的DOM元素
+    const elements = Array.from((this.#node.element as HTMLElement).querySelectorAll(selector))
+    // 如果没有匹配的元素，直接返回空数组
+    if (elements.length === 0) return []
+
+    // 用于存储匹配的包装器对象数组
+    const wrappers: Wrapper<ElementVNode>[] = []
+    // 获取当前节点的元素节点
+    const node = this.#findElementNode(this.#node)
+
+    // 定义访问子节点的函数
+    const visit = (child: VNode) => {
+      // 获取子节点的元素节点
+      const elNode = this.#findElementNode(child)
+      // 如果子节点的元素存在于匹配的元素集合中，则创建包装器并添加到结果数组
+      if (elNode.element && elements.includes(elNode.element as HTMLElement)) {
+        wrappers.push(new Wrapper(elNode as ElementVNode))
+      }
+      // 如果是容器节点，递归访问其子节点
+      if (ContainerVNode.is(elNode)) {
+        elNode.children.forEach(visit)
+      }
+    }
+
+    // 如果是容器节点，开始遍历其子节点
+    if (ContainerVNode.is(node)) {
+      node.children.forEach(visit)
+    }
+
+    return wrappers
   }
 
   /**
