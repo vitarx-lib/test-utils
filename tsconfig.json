@@ -12,10 +12,9 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "types": [
-      "node",
       "vitarx"
     ],
-    "jsx": "react",
+    "jsx": "react-jsx",
     "jsxImportSource": "vitarx"
   },
   "include": [
