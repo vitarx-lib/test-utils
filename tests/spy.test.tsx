@@ -1,17 +1,17 @@
 /**
  * @file spy 与 domStubs 用例
  */
-import { describe, it, expect } from 'vitest'
-import { mount, createSpy, getCalls } from '../src/index.js'
+import { describe, expect, it } from 'vitest'
+import { createSpy, getCalls, mount } from '../src/index.js'
 
 function Child() {
-  return <div class='child'>child</div>
+  return <div class="child">child</div>
 }
 
 function Parent() {
   return (
     <div>
-      <Child class='child' />
+      <Child class="child" />
     </div>
   )
 }
@@ -28,7 +28,7 @@ describe('spy', () => {
     const onClick = createSpy()
     const wrapper = mount(() => (
       <button
-        class='btn'
+        class="btn"
         onClick={onClick}
       >
         OK
