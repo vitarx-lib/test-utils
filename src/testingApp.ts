@@ -4,11 +4,10 @@
 
 import {
   createApp,
+  createElement,
   nextTick as vNextTick,
-  Element,
-  type WidgetType,
   type VNodeProps,
-  createElement
+  type WidgetType
 } from 'vitarx'
 
 export interface TestingApp {
