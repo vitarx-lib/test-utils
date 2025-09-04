@@ -1,20 +1,21 @@
 /**
  * @file 工具能力用例：nextTick、flushPromises、setValue
  */
-import { describe, it, expect } from 'vitest'
-import { mount, setValue, flushPromises } from '../src/index.js'
+import { ref } from 'vitarx'
+import { describe, expect, it } from 'vitest'
+import { flushPromises, mount } from '../src/index.js'
 
 function Form() {
-  let text = ''
-  const onInput = (e: any) => (text = e.target.value)
+  let text = ref('')
+  const onInput = (e: any) => (text.value = e.target.value)
   return (
     <div>
       <input
-        class='ipt'
+        class="ipt"
         value={text}
         onInput={onInput}
       />
-      <span class='val'>{text}</span>
+      <span class="val">{text}</span>
     </div>
   )
 }
