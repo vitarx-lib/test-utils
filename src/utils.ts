@@ -2,7 +2,7 @@
  * @file 通用工具：nextTick、flushPromises、触发事件、设置值
  */
 
-import { nextTick as vNextTick } from 'vitarx'
+import { nextTick as vNextTick, type RuntimeElement } from 'vitarx'
 
 /**
  * nextTick
@@ -39,7 +39,8 @@ export async function flushPromises(): Promise<void> {
  * @param payload 附加数据，会被放入 event.detail 中（若接收方读取）
  * @returns Promise<void> 分发完成且渲染完成后 resolve
  */
-export async function tryTrigger(el: HTMLElement, event: string, payload?: unknown): Promise<void> {
+export async function tryTrigger(el: RuntimeElement, event: string, payload?: unknown): Promise<void> {
+  if (!('dispatchEvent' in el)) throw new Error('tryTrigger 仅支持 HTMLElement')
   const domEvent = new Event(event, { bubbles: true, cancelable: true })
   ;(domEvent as any).detail = payload
   el.dispatchEvent(domEvent)
