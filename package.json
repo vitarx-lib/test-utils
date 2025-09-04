@@ -33,7 +33,7 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
-    "vitarx": "^3.0.0-beta.9"
+    "vitarx": "^3.0.0-beta.10"
   },
   "devDependencies": {
     "@vitarx/vite-bundler": "3.0.0-beta.2",
