@@ -13,6 +13,10 @@
     "vitest"
   ],
   "author": "zhuchonglin <8210856@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitarx-lib/test-utils.git"
+  },
   "license": "MIT",
   "exports": {
     ".": {
