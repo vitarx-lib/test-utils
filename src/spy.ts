@@ -12,15 +12,15 @@ export function createSpy<Args extends unknown[] = unknown[], R = unknown>(
 ): SpyFunction<Args, R> {
   const calls: SpyCall<Args, R>[] = []
   const spyFn = ((...args: Args): R => {
-    try {
-      const result = impl ? impl(...args) : (undefined as unknown as R)
-      calls.push({ args, returned: result })
-      return result
-    } catch (err) {
-      calls.push({ args, threw: err })
-      throw err
-    }
-  }) as SpyFunction<Args, R>
+      try {
+        const result = impl ? impl(...args) : (undefined as unknown as R)
+        calls.push({ args, returned: result })
+        return result
+      } catch (err) {
+        calls.push({ args, threw: err })
+        throw err
+      }
+    }) as SpyFunction<Args, R>
   ;(spyFn as SpyFunction<Args, R>).__isSpy = true
   ;(spyFn as SpyFunction<Args, R>).__calls = calls
   return spyFn
@@ -29,7 +29,7 @@ export function createSpy<Args extends unknown[] = unknown[], R = unknown>(
 /**
  * 判断一个函数是否为 spy
  */
-export function isSpy(fn: unknown): fn is SpyFunction<unknown[], unknown> {
+export function isSpy(fn: unknown): fn is SpyFunction {
   return Boolean(fn) && typeof fn === 'function' && (fn as any).__isSpy === true
 }
 
