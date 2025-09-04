@@ -39,7 +39,7 @@ describe('计数器', () => {
 - `createTestingApp()`：创建测试用 App 容器
 - `mount(component, options)`：挂载组件
 - `Wrapper` 实例方法：
-  - `find(selector)`、`trigger(event, payload)`、`setProps(partial)`、`setValue(value)`、`html()`、`unmount()`
+    - `find(selector)`、`trigger(event, payload)`、`setProps(partial)`、`setValue(value)`、`html()`、`unmount()`
 - 工具函数：`nextTick`、`flushPromises`、`setValue`
 
 ### DOM 级替换
@@ -47,6 +47,7 @@ describe('计数器', () => {
 - `domStubs`（mount 选项）：形如 `{ '.child': '<div data-stub></div>' }` 的 DOM 级替换，适合快速替换某些渲染输出
 
 示例：
+
 ```tsx
 import { mount } from '@vitarx/test-vitarx'
 
@@ -68,6 +69,7 @@ expect(wrapper.html()).toContain('data-stub')
 - `createSpy(impl?)`：创建 spy 函数；`isSpy(fn)`、`getCalls(fn)`、`resetCalls(fn)`
 
 示例：
+
 ```tsx
 import { mount, createSpy, getCalls } from '@vitarx/test-vitarx'
 
@@ -86,4 +88,4 @@ describe('spy', () => {
 ## 约束
 
 - 需要在浏览器环境或 jsdom 环境运行（依赖 DOM API）
-- 推荐使用 `vi.mock()` 进行组件级别的模拟，而非内置的 stub 功能
+- 推荐使用 `vi.mock()` 进行组件级别的模拟
