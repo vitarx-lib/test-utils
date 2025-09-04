@@ -37,7 +37,7 @@ export class TestingApp {
     domStubs?: Record<string, string>
   ): WidgetVNode {
     // 如果已经挂载，抛出错误提示先卸载
-    if (this.node?.state !== 'notMounted') throw new Error('App 已挂载，请先调用unmount卸载！')
+    if (this.node && this.node.state !== 'notMounted') throw new Error(`App 已挂载，请先调用unmount卸载！`)
     this.node = createElement(component, props) as WidgetVNode
     // 挂载应用到容器
     this.node.mount(container)
