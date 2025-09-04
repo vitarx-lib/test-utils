@@ -3,18 +3,27 @@
   "version": "0.1.0",
   "description": "为 Vitarx 框架提供的测试工具集，API 风格接近 @vue/test-utils。",
   "type": "module",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "keywords": [
+    "vitarx",
+    "test",
+    "utils",
+    "vitest"
+  ],
+  "author": "zhuchonglin <8210856@qq.com>",
+  "license": "MIT",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -27,21 +36,11 @@
     "vitarx": "^3.0.0-beta.9"
   },
   "devDependencies": {
+    "@vitarx/vite-bundler": "3.0.0-beta.2",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "rimraf": "^5.0.5",
     "typescript": "^5.4.0",
     "vitest": "^3.2.4"
-  },
-  "keywords": [
-    "vitarx",
-    "test",
-    "utils",
-    "vitest"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "@vitarx/vite-bundler": "3.0.0-beta.2"
   }
 }
