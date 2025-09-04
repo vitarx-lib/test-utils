@@ -45,7 +45,7 @@ export function createTestingApp(): TestingApp {
       domStubs?: Record<string, string>
     ) {
       // 如果已经挂载，抛出错误提示先卸载
-      if (app?.state !== 'notMounted') throw new Error('App 已挂载，不能进行重复挂载！')
+      if (app?.state !== 'notMounted') throw new Error('App 已挂载，请先调用unmount卸载！')
       app = createElement(component, props) as WidgetVNode
       // 挂载应用到容器
       app.mount(container)
