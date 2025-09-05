@@ -1,5 +1,5 @@
-import { flushPromises, mount } from '@vitarx/test-vitarx'
 import { ref } from 'vitarx'
+import { flushPromises, mount } from '../src/index.js'
 
 async function fetchData(): Promise<string> {
   await new Promise((resolve) => setTimeout(resolve, 200))
