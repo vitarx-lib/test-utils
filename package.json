@@ -1,6 +1,6 @@
 {
   "name": "@vitarx/test-utils",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "为 Vitarx 框架提供的测试工具集，API 风格接近 @vue/test-utils。",
   "type": "module",
   "main": "dist/index.js",
@@ -30,9 +30,9 @@
     "README.md"
   ],
   "scripts": {
-    "build": "rimraf dist && npm run test && tsc -p tsconfig.build.json",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish --access=public --registry https://registry.npmjs.org/",
+    "build": "rimraf dist && pnpm run test && tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
+    "publish": "pnpm publish --access=public --registry https://registry.npmjs.org/",
     "test": "vitest run",
     "test:watch": "vitest"
   },
