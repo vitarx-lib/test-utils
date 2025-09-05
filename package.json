@@ -34,15 +34,20 @@
     "prepublishOnly": "pnpm run build",
     "release": "tsx scripts/release.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "husky install"
   },
   "peerDependencies": {
     "vitarx": "^3.0.0-beta.10"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/types": "^19.8.1",
     "@types/node": "^24.3.1",
     "@vitarx/vite-bundler": "3.0.0-beta.2",
     "conventional-changelog-cli": "^5.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
     "rimraf": "^5.0.5",
