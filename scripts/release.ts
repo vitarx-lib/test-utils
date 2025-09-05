@@ -15,7 +15,7 @@ if (gitStatus) {
   process.exit(1)
 }
 
-// 获取版本类型参数
+// 获取版本类型参数 patch minor major
 const type = process.argv[2] || 'patch' // 默认 patch
 
 // 更新版本号（但不打 git tag）
