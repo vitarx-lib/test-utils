@@ -32,7 +32,7 @@
   "scripts": {
     "build": "rimraf dist && pnpm run test && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm run build",
-    "push": "pnpm publish --access=public --registry https://registry.npmjs.org/",
+    "release": "tsx scripts/release.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
