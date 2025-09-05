@@ -1,6 +1,6 @@
 {
   "name": "@vitarx/test-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "为 Vitarx 框架提供的测试工具集，API 风格接近 @vue/test-utils。",
   "type": "module",
   "main": "dist/index.js",
