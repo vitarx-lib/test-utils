@@ -1,6 +1,6 @@
-# @vitarx/test-vitarx
+# @vitarx/test-utils
 
-[![npm version](https://badge.fury.io/js/@vitarx%2Ftest-vitarx.svg)](https://badge.fury.io/js/@vitarx%2Ftest-vitarx)
+[![npm version](https://badge.fury.io/js/@vitarx%2Ftest-utils.svg)](https://badge.fury.io/js/@vitarx%2Ftest-utils)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Vitarx 官方测试工具库，提供类似 `@vue/test-utils` 的 API 风格，专为 `vitest` 测试框架优化设计。
@@ -17,7 +17,7 @@ Vitarx 官方测试工具库，提供类似 `@vue/test-utils` 的 API 风格，�
 ## 安装
 
 ```bash
-npm i -D @vitarx/test-vitarx
+npm i -D @vitarx/test-utils
 ```
 
 ## 快速开始
@@ -26,7 +26,7 @@ npm i -D @vitarx/test-vitarx
 
 ```tsx
 import { describe, it, expect } from 'vitest'
-import { mount, nextTick } from '@vitarx/test-vitarx'
+import { mount, nextTick } from '@vitarx/test-utils'
 
 function Counter() {
   let count = 0
@@ -53,7 +53,7 @@ describe('计数器', () => {
 
 ```tsx
 import { ref } from 'vitarx'
-import { flushPromises, mount } from '@vitarx/test-vitarx'
+import { flushPromises, mount } from '@vitarx/test-utils'
 
 function AsyncComponent() {
   const data = ref('')
@@ -167,7 +167,7 @@ await flushPromises()
 示例：
 
 ```tsx
-import { mount } from '@vitarx/test-vitarx'
+import { mount } from '@vitarx/test-utils'
 
 function Parent() {
   return (
@@ -189,7 +189,7 @@ expect(wrapper.html()).toContain('data-stub')
 示例：
 
 ```tsx
-import { mount, createSpy, getCalls } from '@vitarx/test-vitarx'
+import { mount, createSpy, getCalls } from '@vitarx/test-utils'
 
 describe('spy', () => {
   it('记录事件调用', async () => {
