@@ -1,5 +1,5 @@
 {
-  "name": "@vitarx/test-vitarx",
+  "name": "@vitarx/test-utils",
   "version": "1.0.0-beta.1",
   "description": "为 Vitarx 框架提供的测试工具集，API 风格接近 @vue/test-utils。",
   "type": "module",
