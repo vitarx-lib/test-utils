@@ -109,7 +109,7 @@ const wrapper = mount(MyComponent, {
 
 - 查找方法
     - `findAll(selector: string): Wrapper[]` - 查找所有匹配的元素
-    - `find(selector: string): Wrapper` - 查找第一个匹配的元素
+    - `find(selector: string): Wrapper | null` - 查找第一个匹配的元素
 
 ```ts
 const items = wrapper.findAll('.item')
