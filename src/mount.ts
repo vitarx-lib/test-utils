@@ -6,7 +6,6 @@ import {
   ContainerVNode,
   createVNode,
   type ElementVNode,
-  type IntrinsicNodeElementName,
   NoTagVNode,
   type RuntimeElement,
   type VNode,
@@ -65,9 +64,9 @@ function createWrapper<C extends WidgetType>(
 export function mount<C extends WidgetType>(
   component: C,
   options: MountOptions<VNodeProps<C>> = {}
-): Wrapper<VNodeInstance<C>> {
+): Wrapper<WidgetVNode<C>> {
   const { props = {} as VNodeProps<C> } = options
-  return createWrapper(component, { ...options, props })
+  return createWrapper(component, { ...options, props }) as Wrapper<WidgetVNode<C>>
 }
 
 /**
@@ -112,13 +111,12 @@ export class Wrapper<T extends VNode> {
   }
 
   /**
-   * 获取节点的属性，并返回一个冻结的对象
-   * 冻结的对象意味着不能被修改，确保属性的不可变性
+   * 获取节点的属性
    *
    * @returns {Object} - 返回一个包含节点属性的冻结对象
    */
   get props(): Readonly<T['props']> {
-    return Object.freeze(this.#node.props) // 使用Object.freeze方法冻结节点属性对象，确保其不可变性
+    return this.#node.props
   }
 
   /**
@@ -147,7 +145,7 @@ export class Wrapper<T extends VNode> {
    * @param nextProps - 部分更新的属性对象
    * @returns {Promise<void>} 返回一个解析为undefined的Promise，表示更新操作完成
    */
-  setProps(nextProps: Partial<any>): Promise<void> {
+  setProps(nextProps: Partial<T['props']>): Promise<void> {
     // 合并当前属性和新属性，创建新的属性对象
     const newProps = { ...this.props, ...nextProps }
     // 使用新的属性创建新的虚拟节点
@@ -184,8 +182,10 @@ export class Wrapper<T extends VNode> {
 
   /**
    * 检查元素是否可见
-   * 通过多种CSS属性和DOM状态来判断元素的可见性
    *
+   * 确保元素在文档中可见，并满足以下条件：
+   * - 元素的display属性不能为'none'
+   * - 元素的visibility属性不能为'hidden'
    * @returns {boolean} 如果元素可见则返回true，否则返回false
    */
   isVisible(): boolean {
@@ -195,40 +195,15 @@ export class Wrapper<T extends VNode> {
       if (!this.exists()) return false
 
       // 2. 检查元素的display属性是否为'none'
-      const computedStyle = window.getComputedStyle(this.element)
-      if (computedStyle.display === 'none') return false
+      if (this.element.style.display === 'none') return false
 
       // 3. 检查元素的visibility属性是否为'hidden'
-      if (computedStyle.visibility === 'hidden') return false
-
-      // 4. 检查元素的opacity是否为'0'
-      if (computedStyle.opacity === '0') return false
-
-      // 5. 检查元素或其任何父元素是否通过display样式属性隐藏
-      // offsetParent为null表示元素或其父元素被隐藏（除了position为fixed的情况）
-      if (this.element.offsetParent === null && computedStyle.position !== 'fixed') return false
-
-      // 6. 检查元素的尺寸
-      const rect = this.element.getBoundingClientRect()
-      return !(rect.width === 0 && rect.height === 0)
+      if (this.element.style.visibility === 'hidden') return false
     }
     // 对于非HTMLElement元素，如果存在则认为可见
-    return this.exists()
+    return true
   }
 
-  /**
-   * 查找匹配元素选择器的所有元素节点
-   * 支持通过标签名或CSS选择器查找子元素
-   *
-   * @example
-   * // 查找所有div元素
-   * wrapper.findAll('div')
-   *
-   * @template T - 元素标签类型
-   * @param selector - 要查找的DOM元素标签或CSS选择器
-   * @returns {Array<ElementVNode>} 返回一个包装后的数组，每个元素都是ElementVNode<T>类型的Wrapper实例
-   */
-  findAll<T extends IntrinsicNodeElementName>(selector: T): Wrapper<ElementVNode<T>>[]
   /**
    * 查找匹配选择器的所有元素节点
    *
