@@ -1,3 +1,12 @@
+## [1.0.4](https://github.com/vitarx-lib/test-utils/compare/v1.0.3...v1.0.4) (2025-09-07)
+
+
+### Bug Fixes
+
+* **Wrapper.find:** 修复片段节点查找不到子元素问题 ([f802171](https://github.com/vitarx-lib/test-utils/commit/f80217138b915efee9aa451ad616ba6c0aeea8df))
+
+
+
 ## [1.0.3](https://github.com/vitarx-lib/test-utils/compare/v1.0.1...v1.0.3) (2025-09-06)
 
 
