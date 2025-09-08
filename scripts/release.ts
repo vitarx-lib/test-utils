@@ -37,7 +37,7 @@ run('pnpm build')
 // 提交更新并打 tag
 run('git add package.json CHANGELOG.md')
 run(`git commit -m "build(test-utils): v${newVersion}"`)
-run(`git tag v${newVersion}`)
+run(`git tag -a v${newVersion} -m "Releases ${newVersion}"`)
 
 // 发布到 npm
 run('pnpm publish --access=public --registry https://registry.npmjs.org/')
