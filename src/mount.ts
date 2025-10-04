@@ -211,15 +211,22 @@ export class Wrapper<T extends VNode> {
    * @returns {Array<ElementVNode>} 返回匹配选择器的Wrapper数组，如果没有匹配项则返回空数组
    */
   findAll(selector: string): Wrapper<ElementVNode>[] {
-    if (this.node.element instanceof DocumentFragment) {
+    if (this.element instanceof DocumentFragment) {
       const wrappers: Wrapper<ElementVNode>[] = []
-      for (const child of this.node.element.$vnode.children) {
+      for (const child of this.element.$vnode.children) {
         const wrapper = new Wrapper(child).findAll(selector)
         wrappers.push(...wrapper)
+        if (child.element instanceof HTMLElement && child.element.matches(selector)) {
+          if (WidgetVNode.is(child)) {
+            wrappers.push(new Wrapper(this.#findElementNode(child)) as Wrapper<ElementVNode>)
+          } else {
+            wrappers.push(new Wrapper(child) as Wrapper<ElementVNode>)
+          }
+        }
       }
       return wrappers
     }
-    if (!(this.node.element instanceof HTMLElement)) return []
+    if (!(this.element instanceof HTMLElement)) return []
     const wrappers = this.#querySelectorAll(selector)
     if (wrappers.length === 0 && WidgetVNode.is(this.node)) {
       const els = Array.from(this.element.parentNode?.querySelectorAll(selector) || [])
@@ -244,6 +251,9 @@ export class Wrapper<T extends VNode> {
         if (wrapper) return wrapper
         if (child.element instanceof HTMLElement) {
           if (child.element.matches(selector)) {
+            if (WidgetVNode.is(child)) {
+              return new Wrapper(this.#findElementNode(child)) as Wrapper<ElementVNode>
+            }
             return new Wrapper(child as ElementVNode)
           }
         }
