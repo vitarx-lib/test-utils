@@ -318,7 +318,7 @@ export class Wrapper<T extends VNode> {
    */
   html(): string {
     // 检查元素是否支持outerHTML属性
-    if ('outerHTML' in this.element) return this.element.outerHTML
+    if (this.element instanceof HTMLElement) return this.element.outerHTML
     if (this.element instanceof DocumentFragment) {
       let html = ''
       this.element.$vnode.children.forEach(child => {
@@ -338,8 +338,15 @@ export class Wrapper<T extends VNode> {
    */
   text(): string {
     // 检查元素是否支持textContent属性
-    if ('textContent' in this.element) return (this.element as HTMLElement).textContent || ''
-    return (this.element as HTMLElement)?.nodeValue ?? ''
+    if (this.element instanceof HTMLElement) return this.element.textContent
+    if (this.element instanceof DocumentFragment) {
+      let text = ''
+      this.element.$vnode.children.forEach(child => {
+        text += new Wrapper(child).text()
+      })
+      return text
+    }
+    return this.element.nodeValue ?? ''
   }
 
   /**
