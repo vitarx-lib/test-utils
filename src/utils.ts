@@ -65,6 +65,7 @@ export async function tryTrigger(el: RuntimeElement, event: string, payload?: un
  * @throws Error 当元素类型不受支持时抛出
  */
 export async function setDomValue(el: HTMLElement, value: unknown): Promise<void> {
+  if (!(el instanceof HTMLElement)) throw new Error('setValue 仅支持 input/textarea/select 元素')
   const tag = el.tagName.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
     ;(el as HTMLInputElement | HTMLTextAreaElement).value = String(value ?? '')
