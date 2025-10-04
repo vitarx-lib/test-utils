@@ -5,7 +5,7 @@
 import {
   ContainerVNode,
   createVNode,
-  type ElementVNode,
+  ElementVNode,
   NoTagVNode,
   type RuntimeElement,
   type VNode,
@@ -238,29 +238,35 @@ export class Wrapper<T extends VNode> {
    * @returns {Wrapper<ElementVNode>} 返回匹配元素的Wrapper包装器对象，如果未找到则返回null
    */
   find(selector: string): Wrapper<ElementVNode> | null {
-    if (this.node.element instanceof DocumentFragment) {
-      for (const child of this.node.element.$vnode.children) {
+    if (this.element instanceof DocumentFragment) {
+      for (const child of this.element.$vnode.children) {
         const wrapper = new Wrapper(child).find(selector)
         if (wrapper) return wrapper
+        if (child.element instanceof HTMLElement) {
+          if (child.element.matches(selector)) {
+            return new Wrapper(child as ElementVNode)
+          }
+        }
       }
       return null
     }
     // 如果元素不是HTMLElement，则返回null
-    if (!(this.node.element instanceof HTMLElement)) return null
+    if (!(this.element instanceof HTMLElement)) return null
     // 使用选择器查找匹配的DOM元素
-    const element = (this.node.element as HTMLElement).querySelector(selector)
+    const element = this.element.querySelector(selector)
     // 如果没有匹配的元素，则返回null
     if (!element) {
+      // 组件节点支持对比根元素
       if (
         WidgetVNode.is(this.node) &&
-        this.element.parentNode?.querySelector(selector) === this.node.element
+        this.element.matches(selector)
       ) {
         return new Wrapper(this.#findElementNode(this.node.child)) as Wrapper<ElementVNode>
       }
       return null
     }
 
-    // 定义访问子节点的函数
+    // 从根节点开始递归遍历子节点，拿到元素对应节点
     const visit = (child: VNode): ElementVNode | null => {
       // 获取子节点的元素节点
       const elNode = this.#findElementNode(child)
