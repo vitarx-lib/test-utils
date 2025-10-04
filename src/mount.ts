@@ -5,7 +5,6 @@
 import {
   ContainerVNode,
   createVNode,
-  DomHelper,
   type ElementVNode,
   NoTagVNode,
   type RuntimeElement,
@@ -213,8 +212,14 @@ export class Wrapper<T extends VNode> {
    */
   findAll(selector: string): Wrapper<ElementVNode>[] {
     if (this.node.element instanceof DocumentFragment) {
-      DomHelper.recoveryFragmentChildNodes(this.node.element)
+      const wrappers: Wrapper<ElementVNode>[] = []
+      for (const child of this.node.element.$vnode.children) {
+        const wrapper = new Wrapper(child).findAll(selector)
+        wrappers.push(...wrapper)
+      }
+      return wrappers
     }
+    if (!(this.node.element instanceof HTMLElement)) return []
     const wrappers = this.#querySelectorAll(selector)
     if (wrappers.length === 0 && WidgetVNode.is(this.node)) {
       const els = Array.from(this.element.parentNode?.querySelectorAll(selector) || [])
@@ -234,8 +239,14 @@ export class Wrapper<T extends VNode> {
    */
   find(selector: string): Wrapper<ElementVNode> | null {
     if (this.node.element instanceof DocumentFragment) {
-      DomHelper.recoveryFragmentChildNodes(this.node.element)
+      for (const child of this.node.element.$vnode.children) {
+        const wrapper = new Wrapper(child).find(selector)
+        if (wrapper) return wrapper
+      }
+      return null
     }
+    // 如果元素不是HTMLElement，则返回null
+    if (!(this.node.element instanceof HTMLElement)) return null
     // 使用选择器查找匹配的DOM元素
     const element = (this.node.element as HTMLElement).querySelector(selector)
     // 如果没有匹配的元素，则返回null
