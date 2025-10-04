@@ -27,6 +27,14 @@ class MockWidget extends Widget<{ count?: number }, { count: number }> {
   }
 }
 
+function MockFragment() {
+  return (
+    <>
+      <span class="test">test</span>
+    </>
+  )
+}
+
 describe('核心能力：mount 与 DOM 交互', () => {
   describe('Counter 组件', () => {
     let wrapper: ReturnType<typeof mount>
@@ -77,6 +85,30 @@ describe('核心能力：mount 与 DOM 交互', () => {
       await wrapper.setProps({ count: 0 })
       await nextTick()
       expect(wrapper.find('.count')?.text()).toBe('0')
+    })
+  })
+  describe('MockFragment 组件', () => {
+    const wrapper = mount(MockFragment)
+    it('渲染正确 HTML', () => {
+      expect(wrapper.html()).toBe('<span class="test">test</span>')
+    })
+    it('find 匹配正确元素', () => {
+      const el = wrapper.find('.test')
+      expect(el?.html()).toBe('<span class="test">test</span>')
+    })
+    it('findAll 匹配正确元素', () => {
+      const els = wrapper.findAll('.test')
+      expect(els).toHaveLength(1)
+      expect(els[0]?.html()).toBe('<span class="test">test</span>')
+    })
+    it('元素可见性', () => {
+      const el = wrapper.find('.test')!
+      expect(el.isVisible()).toBe(true)
+      el.setProps({ style: { display: 'none' } })
+      expect(el.isVisible()).toBe(false)
+    })
+    it('text 正确获取', () => {
+      expect(wrapper.text()).toBe('test')
     })
   })
 })
