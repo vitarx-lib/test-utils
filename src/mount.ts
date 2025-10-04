@@ -319,6 +319,13 @@ export class Wrapper<T extends VNode> {
   html(): string {
     // 检查元素是否支持outerHTML属性
     if ('outerHTML' in this.element) return this.element.outerHTML
+    if (this.element instanceof DocumentFragment) {
+      let html = ''
+      this.element.$vnode.children.forEach(child => {
+        html += new Wrapper(child).html()
+      })
+      return html
+    }
     // 如果不支持outerHTML，则返回元素的nodeValue或空字符串
     return this.element.nodeValue || ''
   }
