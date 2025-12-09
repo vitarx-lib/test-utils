@@ -1,4 +1,4 @@
-## [1.0.6](https://github.com/vitarx-lib/test-utils/compare/v1.0.5...v1.0.6) (2025-12-09)
+# [2.0.0-alpha.0](https://github.com/vitarx-lib/test-utils/compare/v1.0.6...v2.0.0-alpha.0) (2025-12-09)
 
 
 ### Bug Fixes
