@@ -3,18 +3,21 @@
  */
 
 import {
-  ContainerVNode,
-  createVNode,
-  ElementVNode,
-  NoTagVNode,
-  type RuntimeElement,
+  type ElementNode,
+  type ElementOf,
+  getDomElement,
+  isContainerNode,
+  isNonElementNode,
+  isWidgetNode,
+  setupRuntime,
+  unmountNode,
+  updateNodeProps,
   type VNode,
-  type VNodeInstance,
-  type VNodeProps,
-  VNodeUpdate,
-  type WidgetInstance,
-  type WidgetType,
-  WidgetVNode
+  VNodeInputProps,
+  type VNodeOf,
+  type WidgetInstanceType,
+  type WidgetNode,
+  type WidgetType
 } from 'vitarx'
 import { createTestingApp } from './testingApp.js'
 import type { MountOptions } from './types.js'
@@ -41,16 +44,16 @@ function createContainer(attachTo?: HTMLElement | null): HTMLElement {
  */
 function createWrapper<C extends WidgetType>(
   component: C, // 组件函数或组件元素
-  options: MountOptions<VNodeProps<C>> // 挂载配置选项
-): Wrapper<VNodeInstance<C>> {
+  options: MountOptions<VNodeInputProps<C>> // 挂载配置选项
+): Wrapper<VNodeOf<C>> {
   // 创建测试应用实例
   const app = createTestingApp()
   // 创建容器元素
   const container = createContainer(options.attachTo)
   // 当前组件属性
-  const currentProps: VNodeProps<C> = options.props ?? ({} as VNodeProps<C>)
+  const currentProps: VNodeInputProps<C> = options.props ?? ({} as VNodeInputProps<C>)
   // 挂载组件
-  const node = app.mount(component, currentProps, container, options.domStubs) as VNodeInstance<C>
+  const node = app.mount(component, currentProps, container, options.domStubs) as VNodeOf<C>
   // 返回包装器实例
   return new Wrapper(node)
 }
@@ -63,10 +66,11 @@ function createWrapper<C extends WidgetType>(
  */
 export function mount<C extends WidgetType>(
   component: C,
-  options: MountOptions<VNodeProps<C>> = {}
-): Wrapper<WidgetVNode<C>> {
-  const { props = {} as VNodeProps<C> } = options
-  return createWrapper(component, { ...options, props }) as Wrapper<WidgetVNode<C>>
+  options: MountOptions<VNodeInputProps<C>> = {}
+): Wrapper<WidgetNode<C>> {
+  setupRuntime()
+  const { props = {} as VNodeInputProps<C> } = options
+  return createWrapper(component, { ...options, props }) as Wrapper<WidgetNode<C>>
 }
 
 /**
@@ -115,7 +119,7 @@ export class Wrapper<T extends VNode> {
    *
    * @returns {Object} - 返回一个包含节点属性的冻结对象
    */
-  get props(): Readonly<T['props']> {
+  get props(): Readonly<Record<string, any>> {
     return this.#node.props
   }
 
@@ -123,11 +127,10 @@ export class Wrapper<T extends VNode> {
    * 获取当前节点的运行时元素
    * 这是一个 getter 属性，用于返回与当前节点关联的运行时元素
    *
-   * @returns {RuntimeElement<T['type']>} 返回与当前节点关联的运行时元素，其类型由泛型 T 的 type 属性决定
+   * @returns {T['el']} 返回与当前节点关联的运行时元素，其类型由泛型 T 的 type 属性决定
    */
-  get element(): RuntimeElement<T['type']> {
-    // 返回内部节点的元素，并确保其类型符合 RuntimeElement<T['type']>
-    return this.#node.element as RuntimeElement<T['type']>
+  get element(): ElementOf<T['type']> {
+    return getDomElement(this.node) as ElementOf<T['type']>
   }
 
   /**
@@ -146,12 +149,7 @@ export class Wrapper<T extends VNode> {
    * @returns {Promise<void>} 返回一个解析为undefined的Promise，表示更新操作完成
    */
   setProps(nextProps: Partial<T['props']>): Promise<void> {
-    // 合并当前属性和新属性，创建新的属性对象
-    const newProps = { ...this.props, ...nextProps }
-    // 使用新的属性创建新的虚拟节点
-    const node = createVNode(this.#node.type, newProps)
-    // 执行属性更新操作，将新旧节点的属性差异进行应用
-    VNodeUpdate.patchUpdateAttrs(this.#node, node as unknown as T)
+    updateNodeProps(this.node, nextProps)
     // 返回一个已解析的Promise，表示操作完成
     return Promise.resolve(void 0)
   }
@@ -161,11 +159,11 @@ export class Wrapper<T extends VNode> {
    * 根据当前节点的类型返回对应的组件实例
    * 使用条件类型和类型推断来确定返回类型
    *
-   * @returns {Object|null} 如果节点是 WidgetVNode 类型，返回对应的 WidgetInstance<C>，否则返回 null
+   * @returns {Object|null} 如果节点是 WidgetVNode 类型，返回对应的 WidgetInstanceType<C>，否则返回 null
    */
-  getWidgetInstance(): T extends WidgetVNode<infer C> ? WidgetInstance<C> : null {
+  getWidgetInstance(): T extends WidgetNode<infer C> ? WidgetInstanceType<C> : null {
     // 检查当前节点是否是 WidgetVNode 的实例
-    if (WidgetVNode.is(this.#node)) return this.#node.instance as any
+    if (isWidgetNode(this.#node)) return this.#node.instance as any
     // 如果不是 WidgetVNode 实例，则返回 null
     return null as any
   }
@@ -177,7 +175,7 @@ export class Wrapper<T extends VNode> {
    * @returns {boolean} - 如果节点的父节点不为null，则返回true，表示节点存在；否则返回false
    */
   exists(): boolean {
-    return this.#node.element.parentNode !== null
+    return !!this.node.el?.parentNode
   }
 
   /**
@@ -208,19 +206,19 @@ export class Wrapper<T extends VNode> {
    * 查找匹配选择器的所有元素节点
    *
    * @param selector - CSS选择器字符串
-   * @returns {Array<ElementVNode>} 返回匹配选择器的Wrapper数组，如果没有匹配项则返回空数组
+   * @returns {Array<ElementNode>} 返回匹配选择器的Wrapper数组，如果没有匹配项则返回空数组
    */
-  findAll(selector: string): Wrapper<ElementVNode>[] {
+  findAll(selector: string): Wrapper<ElementNode>[] {
     if (this.element instanceof DocumentFragment) {
-      const wrappers: Wrapper<ElementVNode>[] = []
+      const wrappers: Wrapper<ElementNode>[] = []
       for (const child of this.element.$vnode.children) {
         const wrapper = new Wrapper(child).findAll(selector)
         wrappers.push(...wrapper)
-        if (child.element instanceof HTMLElement && child.element.matches(selector)) {
-          if (WidgetVNode.is(child)) {
-            wrappers.push(new Wrapper(this.#findElementNode(child)) as Wrapper<ElementVNode>)
+        if (child.el instanceof HTMLElement && child.el.matches(selector)) {
+          if (isWidgetNode(child)) {
+            wrappers.push(new Wrapper(this.#findElementNode(child)) as Wrapper<ElementNode>)
           } else {
-            wrappers.push(new Wrapper(child) as Wrapper<ElementVNode>)
+            wrappers.push(new Wrapper(child) as Wrapper<ElementNode>)
           }
         }
       }
@@ -228,10 +226,10 @@ export class Wrapper<T extends VNode> {
     }
     if (!(this.element instanceof HTMLElement)) return []
     const wrappers = this.#querySelectorAll(selector)
-    if (wrappers.length === 0 && WidgetVNode.is(this.node)) {
+    if (wrappers.length === 0 && isWidgetNode(this.node)) {
       const els = Array.from(this.element.parentNode?.querySelectorAll(selector) || [])
       if (els.includes(this.element as HTMLElement)) {
-        return [new Wrapper(this.#findElementNode(this.node.child) as ElementVNode)]
+        return [new Wrapper(this.#findElementNode(this.node.instance!.child) as ElementNode)]
       }
     }
     return wrappers
@@ -242,19 +240,19 @@ export class Wrapper<T extends VNode> {
    * 实现深度优先搜索来查找匹配的元素
    *
    * @param selector - 用于查找DOM元素的CSS选择器
-   * @returns {Wrapper<ElementVNode>} 返回匹配元素的Wrapper包装器对象，如果未找到则返回null
+   * @returns {Wrapper<ElementNode>} 返回匹配元素的Wrapper包装器对象，如果未找到则返回null
    */
-  find(selector: string): Wrapper<ElementVNode> | null {
+  find(selector: string): Wrapper<ElementNode> | null {
     if (this.element instanceof DocumentFragment) {
       for (const child of this.element.$vnode.children) {
         const wrapper = new Wrapper(child).find(selector)
         if (wrapper) return wrapper
-        if (child.element instanceof HTMLElement) {
-          if (child.element.matches(selector)) {
-            if (WidgetVNode.is(child)) {
-              return new Wrapper(this.#findElementNode(child)) as Wrapper<ElementVNode>
+        if (child.el instanceof HTMLElement) {
+          if (child.el.matches(selector)) {
+            if (isWidgetNode(child)) {
+              return new Wrapper(this.#findElementNode(child)) as Wrapper<ElementNode>
             }
-            return new Wrapper(child as ElementVNode)
+            return new Wrapper(child as ElementNode)
           }
         }
       }
@@ -268,24 +266,24 @@ export class Wrapper<T extends VNode> {
     if (!element) {
       // 组件节点支持对比根元素
       if (
-        WidgetVNode.is(this.node) &&
+        isWidgetNode(this.node) &&
         this.element.matches(selector)
       ) {
-        return new Wrapper(this.#findElementNode(this.node.child)) as Wrapper<ElementVNode>
+        return new Wrapper(this.#findElementNode(this.node.instance!.child)) as Wrapper<ElementNode>
       }
       return null
     }
 
     // 从根节点开始递归遍历子节点，拿到元素对应节点
-    const visit = (child: VNode): ElementVNode | null => {
+    const visit = (child: VNode): ElementNode | null => {
       // 获取子节点的元素节点
       const elNode = this.#findElementNode(child)
       // 如果子节点的元素等于匹配的元素，则返回包装器对象
-      if (elNode.element === element) return elNode as ElementVNode
-      if (ContainerVNode.is(elNode)) {
+      if (elNode.el === element) return elNode as ElementNode
+      if (isContainerNode(elNode)) {
         for (const child of elNode.children) {
           const node = visit(child)
-          if (node?.element === element) return node
+          if (node?.el === element) return node
         }
       }
       return null
@@ -315,14 +313,16 @@ export class Wrapper<T extends VNode> {
    * @returns 返回一个Promise，解析为void类型
    */
   setValue(value: unknown): Promise<void> {
+    const node = this.node
     // 检查当前节点是否为NoTagVNode类型
-    if (NoTagVNode.is(this.#node)) {
+    if (isNonElementNode(node)) {
       // 如果是NoTagVNode，直接设置其value属性
-      this.#node.value = String(value ?? '')
+      node.props.text = String(value ?? '')
+      node.el!.nodeValue = node.props.text
       // 返回一个已解析的Promise
       return Promise.resolve(void 0)
     }
-    // 如果不是NoTagVNode，则调用setDomValue方法设置DOM元素的值
+    // 如果不是文本元素，则调用setDomValue方法设置DOM元素的值
     return setDomValue(this.element as HTMLElement, value)
   }
 
@@ -372,25 +372,25 @@ export class Wrapper<T extends VNode> {
    */
   unmount(): void {
     // 调用内部节点实例的卸载方法
-    this.#node.unmount()
+    unmountNode(this.node)
   }
 
   /**
    * 根据选择器查找所有匹配的元素节点并返回它们的包装器对象数组
    * @param selector - CSS选择器字符串，用于匹配DOM元素
-   * @returns {Wrapper<ElementVNode>[]} 返回匹配元素的包装器对象数组，如果没有匹配项则返回空数组
+   * @returns {Wrapper<ElementNode>[]} 返回匹配元素的包装器对象数组，如果没有匹配项则返回空数组
    */
-  #querySelectorAll(selector: string): Wrapper<ElementVNode>[] {
+  #querySelectorAll(selector: string): Wrapper<ElementNode>[] {
     // 检查当前节点是否具有querySelectorAll方法
-    if (!('querySelectorAll' in this.#node.element)) return []
+    if (!('querySelectorAll' in this.node.el!)) return []
 
     // 使用选择器查找所有匹配的DOM元素
-    const elements = Array.from((this.#node.element as HTMLElement).querySelectorAll(selector))
+    const elements = Array.from((this.node.el as HTMLElement).querySelectorAll(selector))
     // 如果没有匹配的元素，直接返回空数组
     if (elements.length === 0) return []
 
     // 用于存储匹配的包装器对象数组
-    const wrappers: Wrapper<ElementVNode>[] = []
+    const wrappers: Wrapper<ElementNode>[] = []
     // 获取当前节点的元素节点
     const node = this.#findElementNode(this.#node)
 
@@ -399,17 +399,17 @@ export class Wrapper<T extends VNode> {
       // 获取子节点的元素节点
       const elNode = this.#findElementNode(child)
       // 如果子节点的元素存在于匹配的元素集合中，则创建包装器并添加到结果数组
-      if (elNode.element && elements.includes(elNode.element as HTMLElement)) {
-        wrappers.push(new Wrapper(elNode as ElementVNode))
+      if (elNode.el && elements.includes(elNode.el as HTMLElement)) {
+        wrappers.push(new Wrapper(elNode as ElementNode))
       }
       // 如果是容器节点，递归访问其子节点
-      if (ContainerVNode.is(elNode)) {
+      if (isContainerNode(elNode)) {
         elNode.children.forEach(visit)
       }
     }
 
     // 如果是容器节点，开始遍历其子节点
-    if (ContainerVNode.is(node)) {
+    if (isContainerNode(node)) {
       node.children.forEach(visit)
     }
 
@@ -425,9 +425,9 @@ export class Wrapper<T extends VNode> {
    */
   #findElementNode(node: VNode): VNode {
     // 循环查找，直到找到非组件类型的节点
-    while (WidgetVNode.is(node)) {
+    while (isWidgetNode(node)) {
       // 移动到子节点继续查找
-      node = node.child
+      node = node.instance!.child
     }
     // 返回找到的元素节点
     return node
