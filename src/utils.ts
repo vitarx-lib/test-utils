@@ -2,7 +2,7 @@
  * @file 通用工具：nextTick、flushPromises、触发事件、设置值
  */
 
-import { nextTick as vNextTick, type RuntimeElement } from 'vitarx'
+import { type HostElements, type HostNodeElements, nextTick as vNextTick } from 'vitarx'
 
 /**
  * nextTick
@@ -12,7 +12,6 @@ import { nextTick as vNextTick, type RuntimeElement } from 'vitarx'
  * - 对齐 Vitarx 的 nextTick 语义。
  */
 export const nextTick = vNextTick
-// @ts-ignore
 const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout
 
 /**
@@ -42,7 +41,7 @@ export async function flushPromises(): Promise<void> {
  * @param payload 附加数据，会被放入 event.detail 中（若接收方读取）
  * @returns Promise<void> 分发完成且渲染完成后 resolve
  */
-export async function tryTrigger(el: RuntimeElement, event: string, payload?: unknown): Promise<void> {
+export async function tryTrigger(el: HostNodeElements, event: string, payload?: unknown): Promise<void> {
   if (!('dispatchEvent' in el)) throw new Error('tryTrigger 仅支持 HTMLElement')
   const domEvent = new Event(event, { bubbles: true, cancelable: true })
   ;(domEvent as any).detail = payload
@@ -64,7 +63,7 @@ export async function tryTrigger(el: RuntimeElement, event: string, payload?: un
  * @returns Promise<void> 设置与事件触发完成后 resolve
  * @throws Error 当元素类型不受支持时抛出
  */
-export async function setDomValue(el: HTMLElement, value: unknown): Promise<void> {
+export async function setDomValue(el: HostElements, value: unknown): Promise<void> {
   if (!(el instanceof HTMLElement)) throw new Error('setValue 仅支持 input/textarea/select 元素')
   const tag = el.tagName.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
@@ -94,6 +93,6 @@ export async function setDomValue(el: HTMLElement, value: unknown): Promise<void
  * @param value 要设置的值
  * @returns Promise<void>
  */
-export async function setValue(el: HTMLElement, value: unknown): Promise<void> {
+export async function setValue(el: HostElements, value: unknown): Promise<void> {
   await setDomValue(el, value)
 }
