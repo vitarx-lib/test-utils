@@ -6,8 +6,6 @@ async function fetchData(): Promise<string> {
   return 'loaded'
 }
 
-console.log('start')
-
 function AsyncComponent() {
   const data = ref('')
   const loadData = async () => {
