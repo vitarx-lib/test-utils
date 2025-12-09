@@ -1,4 +1,4 @@
-import { defineProps, type Element, ref, Widget } from 'vitarx'
+import { defineProps, ref, type Renderable, Widget } from 'vitarx'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { mount, nextTick } from '../src/index.js'
 
@@ -18,7 +18,7 @@ class MockWidget extends Widget<{ count?: number }, { count: number }> {
     defineProps({ count: 1 })
   }
 
-  build(): Element | null {
+  build(): Renderable | null {
     return (
       <>
         <span class="count">{this.props.count}</span>
