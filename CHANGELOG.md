@@ -1,3 +1,12 @@
+## [1.0.6](https://github.com/vitarx-lib/test-utils/compare/v1.0.5...v1.0.6) (2025-12-09)
+
+
+### Bug Fixes
+
+* **tests:** 修复 core.test.tsx 的类型导入和返回类型 ([0fd1f20](https://github.com/vitarx-lib/test-utils/commit/0fd1f20bb2a7e85d4bf477516f68c4901cd880c9))
+
+
+
 ## [1.0.5](https://github.com/vitarx-lib/test-utils/compare/v1.0.4...v1.0.5) (2025-10-04)
 
 
