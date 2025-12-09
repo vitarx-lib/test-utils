@@ -3,11 +3,13 @@
  */
 
 import {
-  createElement,
+  createVNode,
+  mountNode,
   nextTick as vNextTick,
-  type VNodeProps,
-  type WidgetType,
-  type WidgetVNode
+  NodeState,
+  type VNodeInputProps,
+  type WidgetNode,
+  type WidgetType
 } from 'vitarx'
 
 
@@ -20,7 +22,7 @@ export class TestingApp {
    */
   nextTick: typeof vNextTick = vNextTick
   // 声明一个变量用于存储节点实例，初始值为null
-  private node: WidgetVNode | null = null
+  private node: WidgetNode | null = null
 
   /**
    * 挂载组件到指定容器
@@ -28,19 +30,19 @@ export class TestingApp {
    * @param props 传递给组件的属性
    * @param container 挂载的目标DOM元素
    * @param domStubs DOM级别桩：键为CSS选择器，值为占位字符串
-   * @returns {WidgetVNode} 返回挂载的组件实例
+   * @returns {WidgetNode} 返回挂载的组件实例
    */
   mount<C extends WidgetType>(
     component: C,
-    props: VNodeProps<C>,
+    props: VNodeInputProps<C>,
     container: HTMLElement,
     domStubs?: Record<string, string>
-  ): WidgetVNode {
+  ): WidgetNode {
     // 如果已经挂载，抛出错误提示先卸载
-    if (this.node && this.node.state !== 'notMounted') throw new Error(`App 已挂载，请先调用unmount卸载！`)
-    this.node = createElement(component, props) as WidgetVNode
+    if (this.node && this.node.state !== NodeState.Activated) throw new Error(`App 已挂载，请先调用unmount卸载！`)
+    this.node = createVNode(component, props) as WidgetNode
     // 挂载应用到容器
-    this.node.mount(container)
+    mountNode(this.node, container)
     // 应用 DOM 级别桩替换
     if (domStubs) {
       for (const [selector, html] of Object.entries(domStubs)) {
@@ -68,9 +70,9 @@ export class TestingApp {
    * 卸载已挂载的应用
    */
   unmount() {
-    if (this.node && this.node.state !== 'unloaded') {
+    if (this.node && this.node.state !== NodeState.Unmounted) {
       // 重置应用实例和挂载状态
-      this.node.unmount()
+      mountNode(this.node)
     }
     this.node = null
   }
