@@ -27,7 +27,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist && vitest run && tsc -p tsconfig.build.json",
     "release": "release-cli",
     "test": "vitest run",
     "test:watch": "vitest"
