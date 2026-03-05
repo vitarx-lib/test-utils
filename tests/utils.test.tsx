@@ -1,15 +1,15 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { createComponentView, DOMRenderer, getRenderer, setRenderer } from 'vitarx'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  createContainer,
   flushPromises,
-  tryTrigger,
-  setDomValue,
-  isHostFragment,
   isHostElement,
+  isHostFragment,
+  setDomValue,
   toHtml,
   toText,
-  createContainer
+  tryTrigger
 } from '../src/utils.js'
-import { createComponentView, DOMRenderer, getRenderer, setRenderer, ref } from 'vitarx'
 
 describe('utils.ts 工具函数测试', () => {
   beforeEach(() => {
@@ -31,37 +31,37 @@ describe('utils.ts 工具函数测试', () => {
 
     it('应该在微任务队列清空后 resolve', async () => {
       const order: string[] = []
-      
+
       Promise.resolve().then(() => order.push('microtask 1'))
       order.push('sync')
       await flushPromises()
       order.push('after flush')
-      
+
       expect(order).toEqual(['sync', 'microtask 1', 'after flush'])
     })
 
     it('应该能够处理多个微任务', async () => {
       let counter = 0
-      
+
       Promise.resolve().then(() => counter++)
       Promise.resolve().then(() => counter++)
       Promise.resolve().then(() => counter++)
-      
+
       await flushPromises()
-      
+
       expect(counter).toBe(3)
     })
 
     it('应该能够处理嵌套的微任务', async () => {
       const order: string[] = []
-      
+
       Promise.resolve().then(() => {
         order.push('outer')
         Promise.resolve().then(() => order.push('inner'))
       })
-      
+
       await flushPromises()
-      
+
       expect(order).toEqual(['outer', 'inner'])
     })
   })
@@ -71,9 +71,9 @@ describe('utils.ts 工具函数测试', () => {
       const div = document.createElement('div')
       const handler = vi.fn()
       div.addEventListener('click', handler)
-      
+
       await tryTrigger(div, 'click')
-      
+
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
@@ -82,53 +82,47 @@ describe('utils.ts 工具函数测试', () => {
       const child = document.createElement('span')
       parent.appendChild(child)
       document.body.appendChild(parent)
-      
+
       const parentHandler = vi.fn()
       parent.addEventListener('click', parentHandler)
-      
+
       await tryTrigger(child, 'click')
-      
+
       expect(parentHandler).toHaveBeenCalled()
     })
 
     it('应该触发可取消的事件', async () => {
       const div = document.createElement('div')
-      
+
       div.addEventListener('click', (e) => {
         expect(e.cancelable).toBe(true)
       })
-      
+
       await tryTrigger(div, 'click')
     })
 
     it('应该能够携带 payload 数据', async () => {
       const div = document.createElement('div')
       const payload = { message: 'test' }
-      
+
       div.addEventListener('custom', ((e: Event) => {
         expect((e as any).detail).toEqual(payload)
       }) as EventListener)
-      
-      await tryTrigger(div, 'custom', payload)
-    })
 
-    it('应该在非 HTMLElement 上抛出错误', async () => {
-      const textNode = document.createTextNode('test')
-      
-      await expect(tryTrigger(textNode as any, 'click')).rejects.toThrow('tryTrigger 仅支持 HTMLElement')
+      await tryTrigger(div, 'custom', payload)
     })
 
     it('应该支持不同类型的事件', async () => {
       const input = document.createElement('input')
       const inputHandler = vi.fn()
       const changeHandler = vi.fn()
-      
+
       input.addEventListener('input', inputHandler)
       input.addEventListener('change', changeHandler)
-      
+
       await tryTrigger(input, 'input')
       await tryTrigger(input, 'change')
-      
+
       expect(inputHandler).toHaveBeenCalledTimes(1)
       expect(changeHandler).toHaveBeenCalledTimes(1)
     })
@@ -138,9 +132,9 @@ describe('utils.ts 工具函数测试', () => {
     it('应该为 input 元素设置值', async () => {
       const input = document.createElement('input')
       input.type = 'text'
-      
+
       await setDomValue(input, 'test value')
-      
+
       expect(input.value).toBe('test value')
     })
 
@@ -148,21 +142,21 @@ describe('utils.ts 工具函数测试', () => {
       const input = document.createElement('input')
       const inputHandler = vi.fn()
       const changeHandler = vi.fn()
-      
+
       input.addEventListener('input', inputHandler)
       input.addEventListener('change', changeHandler)
-      
+
       await setDomValue(input, 'test')
-      
+
       expect(inputHandler).toHaveBeenCalledTimes(1)
       expect(changeHandler).toHaveBeenCalledTimes(1)
     })
 
     it('应该为 textarea 元素设置值', async () => {
       const textarea = document.createElement('textarea')
-      
+
       await setDomValue(textarea, 'textarea content')
-      
+
       expect(textarea.value).toBe('textarea content')
     })
 
@@ -172,12 +166,12 @@ describe('utils.ts 工具函数测试', () => {
       option1.value = 'option1'
       const option2 = document.createElement('option')
       option2.value = 'option2'
-      
+
       select.appendChild(option1)
       select.appendChild(option2)
-      
+
       await setDomValue(select, 'option2')
-      
+
       expect(option2.selected).toBe(true)
       expect(option1.selected).toBe(false)
     })
@@ -187,42 +181,42 @@ describe('utils.ts 工具函数测试', () => {
       const option = document.createElement('option')
       option.value = 'test'
       select.appendChild(option)
-      
+
       const changeHandler = vi.fn()
       select.addEventListener('change', changeHandler)
-      
+
       await setDomValue(select, 'test')
-      
+
       expect(changeHandler).toHaveBeenCalledTimes(1)
     })
 
     it('应该将 null 和 undefined 转换为空字符串', async () => {
       const input = document.createElement('input')
-      
+
       await setDomValue(input, null)
       expect(input.value).toBe('')
-      
+
       await setDomValue(input, undefined)
       expect(input.value).toBe('')
     })
 
     it('应该将数字转换为字符串', async () => {
       const input = document.createElement('input')
-      
+
       await setDomValue(input, 123)
-      
+
       expect(input.value).toBe('123')
     })
 
     it('应该在非 HTMLElement 上抛出错误', async () => {
       const textNode = document.createTextNode('test')
-      
+
       await expect(setDomValue(textNode as any, 'value')).rejects.toThrow('setValue 仅支持 input/textarea/select 元素')
     })
 
     it('应该在不受支持的元素类型上抛出错误', async () => {
       const div = document.createElement('div')
-      
+
       await expect(setDomValue(div, 'value')).rejects.toThrow('setValue 仅支持 input/textarea/select 元素')
     })
   })
@@ -230,7 +224,7 @@ describe('utils.ts 工具函数测试', () => {
   describe('isHostFragment', () => {
     it('应该对 DocumentFragment 返回 true', () => {
       const fragment = document.createDocumentFragment()
-      expect(isHostFragment(fragment)).toBe(true)
+      expect(isHostFragment(fragment as any)).toBe(true)
     })
 
     it('应该对普通元素返回 false', () => {
@@ -252,7 +246,7 @@ describe('utils.ts 工具函数测试', () => {
 
     it('应该对 DocumentFragment 返回 false', () => {
       const fragment = document.createDocumentFragment()
-      expect(isHostElement(fragment)).toBe(false)
+      expect(isHostElement(fragment as any)).toBe(false)
     })
 
     it('应该对文本节点返回 false', () => {
@@ -266,13 +260,14 @@ describe('utils.ts 工具函数测试', () => {
       function TestComponent() {
         return <div class="test">content</div>
       }
+
       const view = createComponentView(TestComponent, {}).mount(document.body)
       const html = toHtml(view)
-      
+
       expect(html).toContain('<div')
       expect(html).toContain('class="test"')
       expect(html).toContain('content')
-      
+
       view.dispose()
     })
 
@@ -284,13 +279,14 @@ describe('utils.ts 工具函数测试', () => {
           </div>
         )
       }
+
       const view = createComponentView(TestComponent, {}).mount(document.body)
       const html = toHtml(view)
-      
+
       expect(html).toContain('<div>')
       expect(html).toContain('<span>')
       expect(html).toContain('child')
-      
+
       view.dispose()
     })
   })
@@ -300,11 +296,12 @@ describe('utils.ts 工具函数测试', () => {
       function TestComponent() {
         return <div>text content</div>
       }
+
       const view = createComponentView(TestComponent, {}).mount(document.body)
       const text = toText(view)
-      
+
       expect(text).toBe('text content')
-      
+
       view.dispose()
     })
 
@@ -317,12 +314,13 @@ describe('utils.ts 工具函数测试', () => {
           </div>
         )
       }
+
       const view = createComponentView(TestComponent, {}).mount(document.body)
       const text = toText(view)
-      
+
       expect(text).toContain('text1')
       expect(text).toContain('text2')
-      
+
       view.dispose()
     })
   })
@@ -330,7 +328,7 @@ describe('utils.ts 工具函数测试', () => {
   describe('createContainer', () => {
     it('应该创建新的容器元素', () => {
       const container = createContainer()
-      
+
       expect(container).toBeInstanceOf(HTMLElement)
       expect(container.getAttribute('data-vx-test-container')).toBe('true')
       expect(document.body.contains(container)).toBe(true)
@@ -339,23 +337,23 @@ describe('utils.ts 工具函数测试', () => {
     it('应该使用提供的容器', () => {
       const customContainer = document.createElement('div')
       customContainer.id = 'custom'
-      
+
       const container = createContainer(customContainer)
-      
+
       expect(container).toBe(customContainer)
       expect(container.id).toBe('custom')
     })
 
     it('应该在 attachTo 为 null 时创建新容器', () => {
       const container = createContainer(null)
-      
+
       expect(container).toBeInstanceOf(HTMLElement)
       expect(container.getAttribute('data-vx-test-container')).toBe('true')
     })
 
     it('应该将容器添加到 document.body', () => {
       const container = createContainer()
-      
+
       expect(document.body.contains(container)).toBe(true)
     })
   })

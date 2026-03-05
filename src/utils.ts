@@ -31,7 +31,7 @@ export async function flushPromises(): Promise<void> {
  * @returns Promise<void> 分发完成且渲染完成后 resolve
  */
 export async function tryTrigger(el: HostNode, event: string, payload?: unknown): Promise<void> {
-  if (!('dispatchEvent' in el)) throw new Error('tryTrigger 仅支持 HTMLElement')
+  if (!('dispatchEvent' in el)) throw new Error('tryTrigger: dispatchEvent not supported')
   const domEvent = new Event(event, { bubbles: true, cancelable: true })
   ;(domEvent as any).detail = payload
   el.dispatchEvent(domEvent)
