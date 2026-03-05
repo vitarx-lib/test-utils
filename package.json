@@ -1,16 +1,15 @@
 {
   "name": "@vitarx/test-utils",
   "version": "2.0.0-alpha.0",
-  "description": "为 Vitarx 框架提供的测试工具集，API 风格接近 @vue/test-utils。",
+  "description": "A library of test tools designed specifically for the Vitarx framework",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "keywords": [
     "vitarx",
-    "test",
-    "utils",
-    "vitest"
+    "vitarx-test",
+    "test-utils"
   ],
   "author": "zhuchonglin <8210856@qq.com>",
   "repository": {
