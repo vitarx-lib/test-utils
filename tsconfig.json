@@ -13,10 +13,10 @@
     "outDir": "dist",
     "types": [
       "vitarx",
-      "vitest/globals"
+      "vitest/globals",
+      "node"
     ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "vitarx"
+    "jsx": "preserve"
   },
   "include": [
     "src",

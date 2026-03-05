@@ -1,17 +1,6 @@
-/**
- * @file 通用工具：nextTick、flushPromises、触发事件、设置值
- */
+import { HostFragment, HostNode, nextTick, View } from 'vitarx'
 
-import { type HostElements, type HostNodeElements, nextTick as vNextTick } from 'vitarx'
 
-/**
- * nextTick
- *
- * 等待框架在下一个微任务/渲染周期刷新视图。
- * - 适用于：同步状态已变更，但需要等待 DOM/渲染更新再进行断言。
- * - 对齐 Vitarx 的 nextTick 语义。
- */
-export const nextTick = vNextTick
 const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout
 
 /**
@@ -41,7 +30,7 @@ export async function flushPromises(): Promise<void> {
  * @param payload 附加数据，会被放入 event.detail 中（若接收方读取）
  * @returns Promise<void> 分发完成且渲染完成后 resolve
  */
-export async function tryTrigger(el: HostNodeElements, event: string, payload?: unknown): Promise<void> {
+export async function tryTrigger(el: HostNode, event: string, payload?: unknown): Promise<void> {
   if (!('dispatchEvent' in el)) throw new Error('tryTrigger 仅支持 HTMLElement')
   const domEvent = new Event(event, { bubbles: true, cancelable: true })
   ;(domEvent as any).detail = payload
@@ -63,7 +52,7 @@ export async function tryTrigger(el: HostNodeElements, event: string, payload?: 
  * @returns Promise<void> 设置与事件触发完成后 resolve
  * @throws Error 当元素类型不受支持时抛出
  */
-export async function setDomValue(el: HostElements, value: unknown): Promise<void> {
+export async function setDomValue(el: HostNode, value: unknown): Promise<void> {
   if (!(el instanceof HTMLElement)) throw new Error('setValue 仅支持 input/textarea/select 元素')
   const tag = el.tagName.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
@@ -84,15 +73,54 @@ export async function setDomValue(el: HostElements, value: unknown): Promise<voi
   throw new Error('setValue 仅支持 input/textarea/select 元素')
 }
 
+export function isHostFragment(node: HostNode): node is HostFragment {
+  return node instanceof DocumentFragment
+}
+
+export function isHostElement(node: HostNode): node is HTMLElement {
+  return node instanceof Element
+}
+
+
+export function toHtml(view: View): string {
+  const element = view.node
+  // 检查元素是否支持outerHTML属性
+  if (isHostElement(element)) return element.outerHTML
+  if (isHostFragment(element)) {
+    let html = ''
+    for (const child of element.$view.children) {
+      html += toHtml(child)
+    }
+    return html
+  }
+  // 如果不支持outerHTML，则返回元素的nodeValue或空字符串
+  return element.nodeValue || ''
+}
+
+export function toText(view: View): string {
+  const element = view.node
+  // 检查元素是否支持outerHTML属性
+  if (isHostElement(element)) return element.textContent
+  if (isHostFragment(element)) {
+    let text = ''
+    for (const child of element.$view.children) {
+      text += toText(child)
+    }
+    return text
+  }
+  // 如果不支持outerHTML，则返回元素的nodeValue或空字符串
+  return element.nodeValue || ''
+}
+
 /**
- * setValue
- *
- * 对外暴露的设置控件值的便捷方法，等价于调用 setDomValue。
- *
- * @param el 目标元素（input/textarea/select）
- * @param value 要设置的值
- * @returns Promise<void>
+ * 创建测试容器
+ * @param attachTo 自定义容器，如果提供则使用，否则创建新容器
+ * @returns HTMLElement 测试容器
  */
-export async function setValue(el: HostElements, value: unknown): Promise<void> {
-  await setDomValue(el, value)
+export function createContainer(attachTo?: Element | null): Element {
+  if (attachTo) return attachTo
+  const container = document.createElement('div')
+  container.setAttribute('data-vx-test-container', 'true')
+  document.body.appendChild(container)
+  return container
 }

@@ -34,20 +34,20 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
-    "vitarx": "^4.0.0-alpha.0"
+    "vitarx": "^4.0.0-0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@types/node": "^24.10.2",
-    "@vitarx/vite-bundler": "3.0.0",
+    "@vitarx/plugin-vite": "^0.0.1-beta.2",
     "conventional-changelog-cli": "^5.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "prettier": "^3.7.4",
     "rimraf": "^5.0.10",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.18"
   }
 }

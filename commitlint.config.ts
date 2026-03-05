@@ -14,8 +14,7 @@ export default {
         'refactor',
         'test',
         'chore',
-        'build',
-        'ci'
+        'release'
       ]
     ],
     'subject-empty': [RuleConfigSeverity.Error, 'never'],
