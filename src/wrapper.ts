@@ -56,7 +56,7 @@ function unlogicView(view: View): HostView | ListView {
  * @function find
  * @param {string} selector - CSS 选择器字符串，用于匹配元素
  * @param {View} view - 要搜索的视图对象
- * @returns {DOMWRapper | null} 返回匹配元素的 Wrapper 包装器，如果未找到则返回 null
+ * @returns {DOMWrapper | null} 返回匹配元素的 Wrapper 包装器，如果未找到则返回 null
  * @example
  * ```typescript
  * // 内部使用示例
@@ -66,7 +66,7 @@ function unlogicView(view: View): HostView | ListView {
  * }
  * ```
  */
-function find(selector: string, view: View): DOMWRapper | null {
+function find(selector: string, view: View): DOMWrapper | null {
   view = unlogicView(view)
   if (isElementView(view) && view.node.matches(selector)) {
     return new Wrapper(view)
@@ -90,7 +90,7 @@ function find(selector: string, view: View): DOMWRapper | null {
  * @function findAll
  * @param {string} selector - CSS 选择器字符串，用于匹配元素
  * @param {View} view - 要搜索的视图对象
- * @returns {DOMWRapper[]} 返回匹配元素的 Wrapper 数组，如果没有匹配项则返回空数组
+ * @returns {DOMWrapper[]} 返回匹配元素的 Wrapper 数组，如果没有匹配项则返回空数组
  * @example
  * ```typescript
  * // 内部使用示例
@@ -100,7 +100,7 @@ function find(selector: string, view: View): DOMWRapper | null {
  * })
  * ```
  */
-function findAll(selector: string, view: View): DOMWRapper[] {
+function findAll(selector: string, view: View): DOMWrapper[] {
   const wrappers: Wrapper<ElementView>[] = []
   view = unlogicView(view)
   if (isElementView(view) && view.node.matches(selector)) {
@@ -365,7 +365,7 @@ export class Wrapper<T extends ComponentView | ElementView> {
    * 返回所有匹配元素的包装器数组。
    *
    * @param {string} selector - CSS 选择器字符串
-   * @returns {DOMWRapper[]} 匹配元素的 Wrapper 数组，如果没有匹配项则返回空数组
+   * @returns {DOMWrapper[]} 匹配元素的 Wrapper 数组，如果没有匹配项则返回空数组
    * @example
    * ```typescript
    * const wrapper = mount(() => (
@@ -381,7 +381,7 @@ export class Wrapper<T extends ComponentView | ElementView> {
    * items.forEach(item => console.log(item.text()))
    * ```
    */
-  findAll(selector: string): DOMWRapper[] {
+  findAll(selector: string): DOMWrapper[] {
     return findAll(selector, this.view)
   }
 
@@ -391,7 +391,7 @@ export class Wrapper<T extends ComponentView | ElementView> {
    * 支持复杂的选择器，包括后代选择器、子选择器等。
    *
    * @param {string} selector - CSS 选择器字符串
-   * @returns {DOMWRapper | null} 匹配元素的 Wrapper，如果未找到则返回 null
+   * @returns {DOMWrapper | null} 匹配元素的 Wrapper，如果未找到则返回 null
    * @example
    * ```typescript
    * const wrapper = mount(() => (
@@ -409,7 +409,7 @@ export class Wrapper<T extends ComponentView | ElementView> {
    * const deepElement = wrapper.find('.container .submit')
    * ```
    */
-  find(selector: string): DOMWRapper | null {
+  find(selector: string): DOMWrapper | null {
     return find(selector, this.view)
   }
 
@@ -540,14 +540,12 @@ export class Wrapper<T extends ComponentView | ElementView> {
 /**
  * DOM 元素包装器类型别名
  * @description 表示包装 ElementView 的 Wrapper 实例类型
- * @typedef {Wrapper<ElementView>} DOMWRapper
  */
-export type DOMWRapper = Wrapper<ElementView>
+export type DOMWrapper = Wrapper<ElementView>
 
 /**
  * 应用组件包装器类型别名
  * @description 表示包装 ComponentView 的 Wrapper 实例类型
  * @template T - 组件类型，默认为 Component
- * @typedef {Wrapper<ComponentView<T>>} AppWrapper
  */
 export type AppWrapper<T extends Component = Component> = Wrapper<ComponentView<T>>

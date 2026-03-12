@@ -4,6 +4,9 @@
  * @module @vitarx/test-utils/types
  */
 
+import type { AppPlugin } from 'vitarx'
+
+
 /**
  * 组件挂载选项配置接口
  * @template Props - 组件属性类型，默认为 unknown
@@ -38,7 +41,6 @@ export interface MountOptions<Props = unknown> {
    * ```
    */
   props?: Props
-
   /**
    * 自定义挂载容器元素
    * @description 指定组件挂载的目标 DOM 元素。如果未提供，将自动创建一个带有 data-vx-test-container 属性的 div 容器并添加到 document.body
@@ -50,7 +52,6 @@ export interface MountOptions<Props = unknown> {
    * ```
    */
   attachTo?: Element | null
-
   /**
    * DOM 级别桩替换配置
    * @description 用于在测试中替换特定 DOM 元素的配置对象。键为 CSS 选择器，值为替换后的 HTML 字符串。
@@ -67,4 +68,15 @@ export interface MountOptions<Props = unknown> {
    * ```
    */
   domStubs?: Record<string, string>
+  /**
+   * 应用插件
+   *
+   * @example
+   * ```typescript
+   * mount(MyComponent, {
+   *   useAppPlugins: [plugin1, plugin2]
+   * })
+   * ```
+   */
+  usePlugins?: AppPlugin[]
 }

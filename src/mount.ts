@@ -5,8 +5,10 @@
  */
 
 import {
+  type App,
   type Component,
   type ComponentProps,
+  createApp,
   createComponentView,
   DOMRenderer,
   getRenderer,
@@ -80,10 +82,17 @@ export function mount<C extends Component>(
   options?: MountOptions<ComponentProps<C>>
 ): AppWrapper<C> {
   if (!getRenderer(true)) setRenderer(new DOMRenderer())
-  const { props = {}, attachTo, domStubs } = options || {}
+  const { props = {}, attachTo, domStubs, usePlugins } = options || {}
 
   const container = createContainer(attachTo)
-  const view = createComponentView(component, props as ValidProps<C>).mount(container)
+  const view = createComponentView(component, props as ValidProps<C>)
+  const app = createApp(view)
+
+  if (Array.isArray(usePlugins)) {
+    usePlugins.forEach(plugin => app.use(plugin as (app: App) => void))
+  }
+  // 挂载到DOM容器中
+  app.mount(container)
 
   if (isPlainObject(domStubs)) {
     for (const [selector, html] of Object.entries(domStubs)) {
@@ -103,5 +112,6 @@ export function mount<C extends Component>(
       }
     }
   }
+
   return new Wrapper(view)
 }
