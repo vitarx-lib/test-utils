@@ -1,8 +1,8 @@
 import vitarx from '@vitarx/plugin-vite'
-import { defineConfig, Plugin } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [vitarx() as Plugin],
+  plugins: [vitarx()],
   test: {
     environment: 'jsdom',
     globals: true,
