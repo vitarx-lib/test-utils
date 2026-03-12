@@ -37,6 +37,7 @@ describe('mount.ts 挂载函数测试', () => {
       expect(wrapper.view).toBeDefined()
       expect(wrapper.html).toBeDefined()
       expect(wrapper.text).toBeDefined()
+      expect(wrapper.view.app).toBeDefined()
 
       wrapper.unmount()
     })
