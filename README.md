@@ -86,6 +86,7 @@ describe('计数器组件', () => {
     - `props` - 传递给组件的属性
     - `attachTo` - 自定义挂载容器元素
     - `domStubs` - DOM 级别桩替换配置
+    - `usePlugins` - AppPlugin[]
 
 **返回值：** `Wrapper` 实例
 
@@ -120,6 +121,12 @@ const wrapper = mount(ParentComponent, {
     '.child-component': '<div class="stub">Mocked</div>'
   }
 })
+
+// 使用插件
+const wrapper = mount(MyComponent, {
+  usePlugins: [plugin1, plugin2]
+})
+
 ```
 
 #### `flushPromises()`

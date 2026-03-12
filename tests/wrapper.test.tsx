@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { DOMRenderer, getRenderer, ref, setRenderer } from 'vitarx'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '../src/mount.js'
-import { ref, DOMRenderer, getRenderer, setRenderer } from 'vitarx'
 
 describe('wrapper.ts Wrapper 类测试', () => {
   beforeEach(() => {
@@ -19,13 +19,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent(props: { message: string }) {
         return <div>{props.message}</div>
       }
-      
+
       const wrapper = mount(TestComponent, {
         props: { message: 'test props' }
       })
-      
+
       expect(wrapper.props).toEqual({ message: 'test props' })
-      
+
       wrapper.unmount()
     })
 
@@ -33,11 +33,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function NoPropsComponent() {
         return <div>no props</div>
       }
-      
+
       const wrapper = mount(NoPropsComponent)
-      
+
       expect(wrapper.props).toEqual({})
-      
+
       wrapper.unmount()
     })
 
@@ -45,16 +45,21 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent(props: { value: number }) {
         return <div>{props.value}</div>
       }
-      
+
       const wrapper = mount(TestComponent, {
         props: { value: 42 }
       })
-      
+
       const props = wrapper.props
-      expect(() => {
-        (props as any).value = 100
-      }).toThrow()
-      
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
+        })
+
+      ;(props as any).value = 100
+
+      expect(consoleWarnSpy).toHaveBeenCalled()
+      consoleWarnSpy.mockRestore()
+      expect(props.value).toBe(42)
+
       wrapper.unmount()
     })
   })
@@ -64,12 +69,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.view).toBeDefined()
       expect(wrapper.view.node).toBeDefined()
-      
+
       wrapper.unmount()
     })
   })
@@ -79,18 +84,18 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div id="test" class="container" data-value="123">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       const attrs = elementWrapper?.attributes()
-      
+
       expect(attrs).toMatchObject({
         id: 'test',
         class: 'container',
         'data-value': '123'
       })
-      
+
       wrapper.unmount()
     })
 
@@ -98,13 +103,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div id="test" data-value="123">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       expect(elementWrapper?.attributes('id')).toBe('test')
       expect(elementWrapper?.attributes('data-value')).toBe('123')
-      
+
       wrapper.unmount()
     })
 
@@ -112,12 +117,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       expect(elementWrapper?.attributes('nonexistent')).toBe('')
-      
+
       wrapper.unmount()
     })
 
@@ -125,11 +130,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <>fragment content</>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.attributes()).toEqual({})
-      
+
       wrapper.unmount()
     })
   })
@@ -139,14 +144,14 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div class="class1 class2 class3">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       const classes = elementWrapper?.classes()
-      
+
       expect(classes).toEqual(['class1', 'class2', 'class3'])
-      
+
       wrapper.unmount()
     })
 
@@ -154,14 +159,14 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div class="active visible">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       expect(elementWrapper?.classes('active')).toBe(true)
       expect(elementWrapper?.classes('visible')).toBe(true)
       expect(elementWrapper?.classes('hidden')).toBe(false)
-      
+
       wrapper.unmount()
     })
 
@@ -169,12 +174,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const elementWrapper = wrapper.find('div')
-      
+
       expect(elementWrapper?.classes()).toEqual([])
-      
+
       wrapper.unmount()
     })
 
@@ -182,11 +187,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <>fragment</>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.classes('test')).toBe(false)
-      
+
       wrapper.unmount()
     })
   })
@@ -196,11 +201,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.exists()).toBe(true)
-      
+
       wrapper.unmount()
     })
 
@@ -208,10 +213,10 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       wrapper.unmount()
-      
+
       expect(wrapper.exists()).toBe(false)
     })
   })
@@ -221,11 +226,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>visible content</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.isVisible()).toBe(true)
-      
+
       wrapper.unmount()
     })
 
@@ -233,10 +238,10 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       wrapper.unmount()
-      
+
       expect(wrapper.isVisible()).toBe(false)
     })
 
@@ -244,11 +249,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div style="display: none;">hidden</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.isVisible()).toBe(false)
-      
+
       wrapper.unmount()
     })
 
@@ -256,11 +261,11 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div style="visibility: hidden;">hidden</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.isVisible()).toBe(false)
-      
+
       wrapper.unmount()
     })
   })
@@ -274,13 +279,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const found = wrapper.find('.target')
-      
+
       expect(found).not.toBeNull()
       expect(found?.text()).toBe('found')
-      
+
       wrapper.unmount()
     })
 
@@ -288,12 +293,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>no target</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const found = wrapper.find('.nonexistent')
-      
+
       expect(found).toBeNull()
-      
+
       wrapper.unmount()
     })
 
@@ -307,13 +312,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const found = wrapper.find('.container .inner .deep')
-      
+
       expect(found).not.toBeNull()
       expect(found?.text()).toBe('deep element')
-      
+
       wrapper.unmount()
     })
 
@@ -321,7 +326,7 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function ChildComponent() {
         return <span class="child">child element</span>
       }
-      
+
       function ParentComponent() {
         return (
           <div>
@@ -329,13 +334,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(ParentComponent)
       const found = wrapper.find('.child')
-      
+
       expect(found).not.toBeNull()
       expect(found?.text()).toBe('child element')
-      
+
       wrapper.unmount()
     })
   })
@@ -351,15 +356,15 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const items = wrapper.findAll('.item')
-      
+
       expect(items).toHaveLength(3)
       expect(items[0].text()).toBe('item1')
       expect(items[1].text()).toBe('item2')
       expect(items[2].text()).toBe('item3')
-      
+
       wrapper.unmount()
     })
 
@@ -367,12 +372,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>no items</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const items = wrapper.findAll('.nonexistent')
-      
+
       expect(items).toEqual([])
-      
+
       wrapper.unmount()
     })
 
@@ -389,12 +394,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const items = wrapper.findAll('.item')
-      
+
       expect(items).toHaveLength(2)
-      
+
       wrapper.unmount()
     })
   })
@@ -404,7 +409,7 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         const clicked = ref(false)
         const handleClick = () => clicked.value = true
-        
+
         return (
           <div>
             <button class="btn" onClick={handleClick}>
@@ -413,57 +418,57 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const button = wrapper.find('.btn')
-      
+
       await button?.trigger('click')
-      
+
       expect(button?.text()).toBe('clicked')
-      
+
       wrapper.unmount()
     })
 
     it('应该携带 payload 数据', async () => {
       function TestComponent() {
         const data = ref('')
-        
+
         const handleCustom = (e: Event) => {
           data.value = (e as any).detail.message
         }
-        
+
         return (
           <div>
             <button class="btn" onClick={handleCustom}>{data}</button>
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const button = wrapper.find('.btn')
-      
+
       await button?.trigger('click', { message: 'custom data' })
-      
+
       expect(button?.text()).toBe('custom data')
-      
+
       wrapper.unmount()
     })
 
     it('应该触发自定义事件', async () => {
       const handler = vi.fn()
-      
+
       function TestComponent() {
         return <div class="test">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const div = wrapper.find('.test')
-      
+
       div?.view.node.addEventListener('customEvent', handler)
       await div?.trigger('customEvent')
-      
+
       expect(handler).toHaveBeenCalled()
-      
+
       wrapper.unmount()
     })
   })
@@ -472,18 +477,19 @@ describe('wrapper.ts Wrapper 类测试', () => {
     it('应该为 input 设置值', async () => {
       function TestComponent() {
         const value = ref('')
-        
-        return <input class="input" value={value} onInput={(e: any) => value.value = e.target.value} />
+
+        return <input class="input" value={value}
+                      onInput={(e: any) => value.value = e.target.value} />
       }
-      
+
       const wrapper = mount(TestComponent)
       const input = wrapper.find('.input')
-      
+
       await input?.setValue('test value')
-      
+
       const inputElement = input?.view.node as HTMLInputElement
       expect(inputElement.value).toBe('test value')
-      
+
       wrapper.unmount()
     })
 
@@ -491,15 +497,15 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <textarea class="textarea"></textarea>
       }
-      
+
       const wrapper = mount(TestComponent)
       const textarea = wrapper.find('.textarea')
-      
+
       await textarea?.setValue('textarea content')
-      
+
       const textareaElement = textarea?.view.node as HTMLTextAreaElement
       expect(textareaElement.value).toBe('textarea content')
-      
+
       wrapper.unmount()
     })
 
@@ -512,12 +518,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </select>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const select = wrapper.find('.select')
-      
+
       await select?.setValue('option2')
-      
+
       wrapper.unmount()
     })
   })
@@ -527,14 +533,14 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div class="test">content</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const html = wrapper.html()
-      
+
       expect(html).toContain('<div')
       expect(html).toContain('class="test"')
       expect(html).toContain('content')
-      
+
       wrapper.unmount()
     })
 
@@ -546,13 +552,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const html = wrapper.html()
-      
+
       expect(html).toContain('<span')
       expect(html).toContain('child content')
-      
+
       wrapper.unmount()
     })
   })
@@ -562,12 +568,12 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div>text content</div>
       }
-      
+
       const wrapper = mount(TestComponent)
       const text = wrapper.text()
-      
+
       expect(text).toBe('text content')
-      
+
       wrapper.unmount()
     })
 
@@ -580,13 +586,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
       const text = wrapper.text()
-      
+
       expect(text).toContain('text1')
       expect(text).toContain('text2')
-      
+
       wrapper.unmount()
     })
   })
@@ -596,13 +602,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div class="test">test</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.exists()).toBe(true)
-      
+
       wrapper.unmount()
-      
+
       expect(wrapper.exists()).toBe(false)
       expect(document.querySelector('.test')).toBeNull()
     })
@@ -611,13 +617,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
       function TestComponent() {
         return <div class="cleanup">should be removed</div>
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(document.querySelector('.cleanup')).not.toBeNull()
-      
+
       wrapper.unmount()
-      
+
       expect(document.querySelector('.cleanup')).toBeNull()
     })
   })
@@ -633,15 +639,15 @@ describe('wrapper.ts Wrapper 类测试', () => {
           </div>
         )
       }
-      
+
       const wrapper = mount(TestComponent)
-      
+
       expect(wrapper.find('.count')?.text()).toBe('0')
-      
+
       await wrapper.find('.increment')?.trigger('click')
-      
+
       expect(wrapper.find('.count')?.text()).toBe('1')
-      
+
       wrapper.unmount()
     })
   })
