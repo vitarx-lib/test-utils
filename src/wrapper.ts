@@ -163,8 +163,7 @@ export class Wrapper<T extends ComponentView | ElementView> {
   /**
    * 私有视图存储
    * @description 使用私有字段存储视图对象，确保封装性和不可变性
-   * @type {T}
-   * @private
+   * @internal
    */
   readonly #view: T
 
