@@ -1,3 +1,12 @@
+# [2.0.0-beta.1](https://github.com/vitarx-lib/test-utils/compare/v2.0.0-beta.0...v2.0.0-beta.1) (2026-03-12)
+
+
+### Features
+
+* **mount:** 支持在挂载选项中使用应用插件 ([0192210](https://github.com/vitarx-lib/test-utils/commit/019221044dad33753858f575b98fa9fc6c68cc04))
+
+
+
 # [2.0.0-beta.0](https://github.com/vitarx-lib/test-utils/compare/v2.0.0-alpha.0...v2.0.0-beta.0) (2026-03-05)
 
 
@@ -5,6 +14,10 @@
 
 * **core:** 完善 Vitarx 测试工具库主入口与核心功能 ([603634e](https://github.com/vitarx-lib/test-utils/commit/603634e0293a1404aee6950082009e5cad24710b))
 * 重构 mount 函数实现并删除旧测试和 spy 相关代码，支持vitarx@4.x版本 ([d3f7ebb](https://github.com/vitarx-lib/test-utils/commit/d3f7ebbb9e9eeaf8deb26e1379fa7538281e7467))
+
+
+
+# [2.0.0-alpha.0](https://github.com/vitarx-lib/test-utils/compare/v1.0.6...v2.0.0-alpha.0) (2025-12-09)
 
 
 
