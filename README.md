@@ -658,6 +658,6 @@ export default defineConfig({
 
 ## 🔗 相关链接
 
-- [Vitarx 官方文档](https://github.com/vitarx-lib/vitarx)
+- [Vitarx 官方文档](https://vitarx.cn/)
 - [GitHub 仓库](https://github.com/vitarx-lib/test-utils)
 - [NPM 包](https://www.npmjs.com/package/@vitarx/test-utils)
