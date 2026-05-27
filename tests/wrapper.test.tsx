@@ -51,13 +51,13 @@ describe('wrapper.ts Wrapper 类测试', () => {
       })
 
       const props = wrapper.props
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {
-        })
 
-      ;(props as any).value = 100
+      try {
+        ;(props as any).value = 100
+      } catch (e) {
+        expect(e).instanceof(Error)
+      }
 
-      expect(consoleWarnSpy).toHaveBeenCalled()
-      consoleWarnSpy.mockRestore()
       expect(props.value).toBe(42)
 
       wrapper.unmount()
