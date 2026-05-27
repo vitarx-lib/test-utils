@@ -12,9 +12,9 @@ import {
   createComponentView,
   DOMRenderer,
   getRenderer,
+  type InferProps,
   isPlainObject,
-  setRenderer,
-  type ValidProps
+  setRenderer
 } from 'vitarx'
 import type { MountOptions } from './types.js'
 import { createContainer } from './utils.js'
@@ -85,7 +85,7 @@ export function mount<C extends Component>(
   const { props = {}, attachTo, domStubs, usePlugins } = options || {}
 
   const container = createContainer(attachTo)
-  const view = createComponentView(component, props as ValidProps<C>)
+  const view = createComponentView(component, props as InferProps<C>)
   const app = createApp(view)
 
   if (Array.isArray(usePlugins)) {

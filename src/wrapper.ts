@@ -42,7 +42,7 @@ function unlogicView(view: View): HostView | ListView {
     return unlogicView(view.instance!.subView)
   }
   if (isDynamicView(view)) {
-    return unlogicView(view.current!)
+    return unlogicView(view.currentView!)
   }
   return view
 }
