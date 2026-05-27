@@ -1,3 +1,12 @@
+# [2.0.0](https://github.com/vitarx-lib/test-utils/compare/v2.0.0-beta.1...v2.0.0) (2026-05-27)
+
+
+### Bug Fixes
+
+* **mount:** 修复props类型断言和视图访问错误 ([a94727b](https://github.com/vitarx-lib/test-utils/commit/a94727bfc7bca750ee512b1ffe002ee99483e85b))
+
+
+
 # [2.0.0-beta.1](https://github.com/vitarx-lib/test-utils/compare/v2.0.0-beta.0...v2.0.0-beta.1) (2026-03-12)
 
 
