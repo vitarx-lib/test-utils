@@ -33,7 +33,7 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
-    "vitarx": "^4.0.0-0"
+    "vitarx": "^4.0.0"
   },
   "packageManager": "pnpm@10.30.3",
   "devDependencies": {
@@ -41,8 +41,8 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@types/node": "^24.10.2",
-    "@vitarx/plugin-vite": "^0.0.1-beta.4",
-    "vitarx": "4.0.0-beta.6",
+    "@vitarx/plugin-vite": "^1.0.0",
+    "vitarx": "^4.0.0",
     "conventional-changelog-cli": "^5.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
@@ -54,8 +54,8 @@
   "pnpm": {
     "overrides": {
       "vite": "7.2.7",
-      "@vitarx/plugin-vite": "0.0.1-beta.4",
-      "vitarx": "4.0.0-beta.6"
+      "@vitarx/plugin-vite": "1.0.0",
+      "vitarx": "4.0.0"
     }
   }
 }
