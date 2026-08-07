@@ -1,6 +1,6 @@
 # @vitarx/test-utils
 
-[![npm version](https://badge.fury.io/js/@vitarx%2Ftest-utils.svg)](https://badge.fury.io/js/@vitarx/test-utils)
+[![npm version](https://badge.fury.io/js/@vitarx%2Ftest-utils.svg)](https://www.npmjs.com/package/@vitarx/test-utils)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > Vitarx 官方测试工具库，提供简洁优雅的组件测试体验
